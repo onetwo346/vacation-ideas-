@@ -1,1438 +1,1153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SkinAI Pro - Advanced Dermatology Analysis 🧬</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #ff3366;
-      --secondary: #00f0ff;
-      --accent: #7c3aed;
-      --dark: #0a0a0a;
-      --card: #1a1a1a;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --danger: #ef4444;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: var(--dark);
-      color: white;
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
-
-    /* Animated Background */
-    .bg-particles {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-      background: radial-gradient(circle at 20% 80%, rgba(120, 58, 237, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 80% 20%, rgba(255, 51, 102, 0.1) 0%, transparent 50%),
-                  radial-gradient(circle at 40% 40%, rgba(0, 240, 255, 0.05) 0%, transparent 50%);
-    }
-
-    /* Intro Screen */
-    #intro {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      z-index: 1000;
-      transition: all 0.8s cubic-bezier(0.23, 1, 0.320, 1);
-    }
-
-    .intro-content {
-      max-width: 600px;
-      padding: 2rem;
-    }
-
-         .logo {
-       font-size: 4rem;
-       background: linear-gradient(45deg, var(--primary), var(--secondary), var(--accent));
-      -webkit-background-clip: text;
-       background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 1rem;
-      animation: glow 2s ease-in-out infinite alternate;
-    }
-
-    @keyframes glow {
-      from { filter: drop-shadow(0 0 20px rgba(255, 51, 102, 0.3)); }
-      to { filter: drop-shadow(0 0 30px rgba(0, 240, 255, 0.3)); }
-    }
-
-    .tagline {
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
-      opacity: 0.8;
-    }
-
-    .enter-btn {
-      padding: 1rem 2.5rem;
-      font-size: 1.1rem;
-      background: linear-gradient(45deg, var(--primary), var(--accent));
-      border: none;
-      border-radius: 50px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .enter-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 30px rgba(255, 51, 102, 0.3);
-    }
-
-    .enter-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-      transition: left 0.5s;
-    }
-
-    .enter-btn:hover::before {
-      left: 100%;
-    }
-
-    /* Main App */
-    #mainApp {
-      display: none;
-      min-height: 100vh;
-      padding: 1rem;
-    }
-
-    /* Header */
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(26, 26, 26, 0.9);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      margin-bottom: 1rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-         .app-title {
-       font-size: 1.5rem;
-       background: linear-gradient(45deg, var(--primary), var(--secondary));
-       -webkit-background-clip: text;
-       background-clip: text;
-       -webkit-text-fill-color: transparent;
-    }
-
-    .stats {
-      display: flex;
-      gap: 1rem;
-    }
-
-    .stat {
-      text-align: center;
-      padding: 0.5rem 1rem;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 10px;
-      backdrop-filter: blur(5px);
-    }
-
-    .stat-value {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: var(--success);
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      opacity: 0.7;
-    }
-
-    /* Analysis Mode Selector */
-    .mode-selector {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 1rem;
-      overflow-x: auto;
-      padding: 1rem;
-    }
-
-    .mode-btn {
-      padding: 0.75rem 1.5rem;
-      background: var(--card);
-      border: 2px solid transparent;
-      border-radius: 15px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .mode-btn.active {
-      background: linear-gradient(45deg, var(--primary), var(--accent));
-      border-color: var(--secondary);
-      transform: scale(1.05);
-    }
-
-    .mode-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(255, 51, 102, 0.2);
-    }
-
-    /* Camera Section */
-    .camera-section {
-      display: grid;
-      grid-template-columns: 1fr 350px;
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .camera-container {
-      position: relative;
-      background: var(--card);
-      border-radius: 20px;
-      overflow: hidden;
-      border: 2px solid rgba(255, 255, 255, 0.1);
-    }
-
-    #camera {
-      width: 100%;
-      height: 400px;
-      object-fit: cover;
-      background: #000;
-    }
-
-    .camera-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      pointer-events: none;
-    }
-
-    .scan-grid {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 200px;
-      height: 200px;
-      border: 2px solid var(--secondary);
-      border-radius: 10px;
-      animation: scanPulse 2s ease-in-out infinite;
-    }
-
-    @keyframes scanPulse {
-      0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-    }
-
-    .detection-points {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-    }
-
-    .detection-point {
-      position: absolute;
-      width: 8px;
-      height: 8px;
-      background: var(--primary);
-      border-radius: 50%;
-      animation: pointPulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes pointPulse {
-      0%, 100% { transform: scale(1); opacity: 0.7; }
-      50% { transform: scale(1.5); opacity: 1; }
-    }
-
-    /* Analysis Panel */
-    .analysis-panel {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      max-height: 400px;
-      overflow-y: auto;
-    }
-
-    .analysis-title {
-      font-size: 1.2rem;
-      margin-bottom: 1rem;
-      color: var(--secondary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .skin-score {
-      text-align: center;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 15px;
-    }
-
-    .score-circle {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      margin: 0 auto 0.5rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      font-weight: bold;
-      position: relative;
-    }
-
-    .score-excellent { background: conic-gradient(var(--success) 90%, #333 90%); }
-    .score-good { background: conic-gradient(var(--warning) 70%, #333 70%); }
-    .score-fair { background: conic-gradient(var(--danger) 50%, #333 50%); }
-
-    .analysis-item {
-      margin-bottom: 1rem;
-      padding: 0.75rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      border-left: 3px solid var(--primary);
-    }
-
-    .analysis-label {
-      font-weight: bold;
-      color: var(--secondary);
-      font-size: 0.9rem;
-    }
-
-    .analysis-value {
-      font-size: 0.85rem;
-      opacity: 0.9;
-      margin-top: 0.25rem;
-    }
-
-    /* Results Grid */
-    .results-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .result-card {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      transition: all 0.3s ease;
-    }
-
-    .result-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(255, 51, 102, 0.1);
-    }
-
-    .card-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1rem;
-    }
-
-    .card-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.2rem;
-    }
-
-    .icon-acne { background: linear-gradient(45deg, #ef4444, #dc2626); }
-    .icon-hydration { background: linear-gradient(45deg, #06b6d4, #0891b2); }
-    .icon-aging { background: linear-gradient(45deg, #8b5cf6, #7c3aed); }
-    .icon-spots { background: linear-gradient(45deg, #f59e0b, #d97706); }
-
-    .card-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-    }
-
-    .progress-bar {
-      width: 100%;
-      height: 8px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 4px;
-      overflow: hidden;
-      margin: 0.5rem 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(45deg, var(--primary), var(--secondary));
-      border-radius: 4px;
-      transition: width 0.5s ease;
-    }
-
-    /* Recommendations */
-    .recommendations {
-      background: var(--card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .recommendation-item {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      padding: 1rem;
-      background: rgba(255, 255, 255, 0.05);
-      border-radius: 10px;
-      margin-bottom: 0.75rem;
-      transition: all 0.3s ease;
-    }
-
-    .recommendation-item:hover {
-      background: rgba(255, 51, 102, 0.1);
-      transform: translateX(5px);
-    }
-
-    .product-image {
-      width: 50px;
-      height: 50px;
-      border-radius: 10px;
-      background: linear-gradient(45deg, var(--primary), var(--accent));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1.2rem;
-    }
-
-    /* Controls */
-    .controls {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .control-btn {
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(45deg, var(--accent), var(--primary));
-      border: none;
-      border-radius: 10px;
-      color: white;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .control-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(120, 58, 237, 0.3);
-    }
-
-    /* Loading Animation */
-    .loading {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0, 0, 0, 0.9);
-      padding: 2rem;
-      border-radius: 20px;
-      text-align: center;
-      z-index: 1000;
-    }
-
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 1rem;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .camera-section {
-        grid-template-columns: 1fr;
-      }
-      
-      .header {
-        flex-direction: column;
-        gap: 1rem;
-      }
-      
-      .stats {
-        justify-content: center;
-      }
-      
-      .mode-selector {
-        justify-content: center;
-      }
-    }
-
-    /* Animations */
-    .fade-in {
-      animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .slide-up {
-      animation: slideUp 0.6s cubic-bezier(0.23, 1, 0.320, 1);
-    }
-
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
-</head>
-<body>
-  <div class="bg-particles"></div>
-
-  <!-- Intro Screen -->
-  <div id="intro">
-         <div class="intro-content">
-       <div class="logo">🧬 Skin Analyst</div>
-       <p class="tagline">Advanced Dermatological Analysis Powered by AI</p>
-       <div style="font-size: 0.85rem; opacity: 0.7; margin-bottom: 1.5rem; max-width: 400px; line-height: 1.4;">
-         For educational purposes only. Not a substitute for professional medical advice. 
-         Consult a dermatologist for medical concerns.
-       </div>
-       <button class="enter-btn" id="enterBtn">
-         <i class="fas fa-rocket"></i> Launch Analysis
-       </button>
-     </div>
-  </div>
-
-  <!-- Loading Screen -->
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <p>Initializing AI Analysis Engine...</p>
-  </div>
-
-  <!-- Main App -->
-  <div id="mainApp">
-    <!-- Header -->
-    <div class="header fade-in">
-      <div class="app-title">
-        <i class="fas fa-microscope"></i> SkinAI Pro
-      </div>
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-value" id="totalScans">247</div>
-          <div class="stat-label">Total Scans</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="accuracy">98.5%</div>
-          <div class="stat-label">Accuracy</div>
-        </div>
-        <div class="stat">
-          <div class="stat-value" id="improvements">15</div>
-          <div class="stat-label">Improvements</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Analysis Mode Selector -->
-    <div class="mode-selector fade-in">
-      <button class="mode-btn active" data-mode="comprehensive">
-        <i class="fas fa-search-plus"></i> Comprehensive
-      </button>
-      <button class="mode-btn" data-mode="acne">
-        <i class="fas fa-circle"></i> Acne Analysis
-      </button>
-      <button class="mode-btn" data-mode="aging">
-        <i class="fas fa-eye"></i> Anti-Aging
-      </button>
-      <button class="mode-btn" data-mode="hydration">
-        <i class="fas fa-tint"></i> Hydration
-      </button>
-      <button class="mode-btn" data-mode="pigmentation">
-        <i class="fas fa-palette"></i> Pigmentation
-      </button>
-    </div>
-
-    <!-- Camera and Analysis Section -->
-    <div class="camera-section slide-up">
-      <div class="camera-container">
-        <video id="camera" autoplay playsinline muted></video>
-        <div class="camera-overlay">
-          <div class="scan-grid"></div>
-          <div class="detection-points" id="detectionPoints"></div>
-        </div>
-      </div>
-      
-      <div class="analysis-panel">
-        <div class="analysis-title">
-          <i class="fas fa-brain"></i> Real-time Analysis
-        </div>
-        
-        <div class="skin-score">
-          <div class="score-circle score-excellent" id="scoreCircle">
-            <span id="skinScore">92</span>
-          </div>
-          <div>Overall Skin Health</div>
-        </div>
-
-        <div id="analysisResults">
-          <div class="analysis-item">
-            <div class="analysis-label">Status</div>
-            <div class="analysis-value">Initializing scan...</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Results Grid -->
-    <div class="results-grid slide-up">
-      <div class="result-card">
-        <div class="card-header">
-          <div class="card-icon icon-acne">
-            <i class="fas fa-circle"></i>
-          </div>
-          <div>
-            <div class="card-title">Acne Analysis</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="acneProgress" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        <div id="acneAnalysis">Scanning for acne indicators...</div>
-      </div>
-
-      <div class="result-card">
-        <div class="card-header">
-          <div class="card-icon icon-hydration">
-            <i class="fas fa-tint"></i>
-          </div>
-          <div>
-            <div class="card-title">Hydration Level</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="hydrationProgress" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        <div id="hydrationAnalysis">Analyzing moisture levels...</div>
-      </div>
-
-      <div class="result-card">
-        <div class="card-header">
-          <div class="card-icon icon-aging">
-            <i class="fas fa-eye"></i>
-          </div>
-          <div>
-            <div class="card-title">Anti-Aging</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="agingProgress" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        <div id="agingAnalysis">Detecting signs of aging...</div>
-      </div>
-
-      <div class="result-card">
-        <div class="card-header">
-          <div class="card-icon icon-spots">
-            <i class="fas fa-palette"></i>
-          </div>
-          <div>
-            <div class="card-title">Dark Spots</div>
-            <div class="progress-bar">
-              <div class="progress-fill" id="spotsProgress" style="width: 0%"></div>
-            </div>
-          </div>
-        </div>
-        <div id="spotsAnalysis">Scanning for pigmentation...</div>
-      </div>
-    </div>
-
-    <!-- Recommendations -->
-    <div class="recommendations slide-up">
-      <div class="analysis-title">
-        <i class="fas fa-lightbulb"></i> AI Recommendations
-      </div>
-      <div id="recommendationsList">
-        <div class="recommendation-item">
-          <div class="product-image">
-            <i class="fas fa-flask"></i>
-          </div>
-          <div>
-            <div style="font-weight: bold;">Hyaluronic Acid Serum</div>
-            <div style="font-size: 0.9rem; opacity: 0.8;">Boost hydration levels by 40%</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Controls -->
-    <div class="controls slide-up">
-      <button class="control-btn" id="captureBtn">
-        <i class="fas fa-camera"></i> Capture Analysis
-      </button>
-      <button class="control-btn" id="exportBtn">
-        <i class="fas fa-download"></i> Export Report
-      </button>
-      <button class="control-btn" id="historyBtn">
-        <i class="fas fa-history"></i> View History
-      </button>
-      <button class="control-btn" id="settingsBtn">
-        <i class="fas fa-cog"></i> Settings
-      </button>
-    </div>
-  </div>
-
-  <script>
-    // Advanced AI Skin Analysis Engine
-    class SkinAnalysisAI {
-      constructor() {
-        this.analysisMode = 'comprehensive';
-        this.scanCount = 0;
-        this.isAnalyzing = false;
-        this.detectionHistory = [];
-        this.skinMetrics = {
-          acne: { severity: 0, count: 0, types: [] },
-          hydration: { level: 0, distribution: [] },
-          aging: { wrinkles: 0, firmness: 0, elasticity: 0 },
-          pigmentation: { darkSpots: 0, evenness: 0, sunDamage: 0 }
-        };
-        
-        this.initializeAI();
-      }
-
-      initializeAI() {
-        console.log('🧠 AI Analysis Engine Initialized');
-        this.loadSkinModels();
-        this.calibrateDetectors();
-      }
-
-      loadSkinModels() {
-        // Simulate loading advanced ML models
-        const models = [
-          'Acne Detection CNN v3.2',
-          'Hydration Analysis Transformer',
-          'Age Estimation ResNet',
-          'Pigmentation Classifier',
-          'Texture Analysis GAN',
-          'Pore Size Detector',
-          'Inflammation Detector'
-        ];
-        
-        console.log('📦 Loading AI Models:', models);
-      }
-
-      calibrateDetectors() {
-        // Advanced skin detection calibration
-        this.detectors = {
-          acne: new AcneDetector(),
-          hydration: new HydrationAnalyzer(),
-          aging: new AgingAssessment(),
-          pigmentation: new PigmentationScanner()
-        };
-      }
-
-      async analyzeFrame(imageData) {
-        if (this.isAnalyzing) return;
-        
-        this.isAnalyzing = true;
-        this.scanCount++;
-        
-        try {
-          // Simulate advanced image processing
-          const results = await this.processImageData(imageData);
-          this.updateAnalysisDisplay(results);
-          this.generateRecommendations(results);
-          this.updateDetectionPoints();
-          
-        } catch (error) {
-          console.error('Analysis error:', error);
-        } finally {
-          this.isAnalyzing = false;
-        }
-      }
-
-      async processImageData(imageData) {
-        // Simulate advanced AI processing with realistic delays
-        await this.sleep(200);
-        
-        const skinRegions = this.detectSkinRegions(imageData);
-        const textureAnalysis = this.analyzeTexture(skinRegions);
-        const colorAnalysis = this.analyzeColor(skinRegions);
-        const featureDetection = this.detectFeatures(skinRegions);
-        
-        return {
-          skinRegions,
-          texture: textureAnalysis,
-          color: colorAnalysis,
-          features: featureDetection,
-          confidence: Math.random() * 0.3 + 0.7, // 70-100% confidence
-          timestamp: Date.now()
-        };
-      }
-
-      detectSkinRegions(imageData) {
-        // Advanced skin segmentation simulation
-        const regions = [];
-        for (let i = 0; i < 5 + Math.random() * 10; i++) {
-          regions.push({
-            x: Math.random() * 100,
-            y: Math.random() * 100,
-            area: Math.random() * 50 + 10,
-            type: ['face', 'forehead', 'cheek', 'chin', 'nose'][Math.floor(Math.random() * 5)]
-          });
-        }
-        return regions;
-      }
-
-      analyzeTexture(regions) {
-        return {
-          smoothness: Math.random() * 40 + 60,
-          roughness: Math.random() * 30 + 10,
-          poreSize: Math.random() * 25 + 5,
-          oiliness: Math.random() * 50 + 20
-        };
-      }
-
-      analyzeColor(regions) {
-        return {
-          evenness: Math.random() * 30 + 70,
-          redness: Math.random() * 40 + 10,
-          darkness: Math.random() * 20 + 5,
-          yellowness: Math.random() * 15 + 5
-        };
-      }
-
-      detectFeatures(regions) {
-        const features = [];
-        
-        // Acne detection
-        if (Math.random() > 0.7) {
-          features.push({
-            type: 'acne',
-            severity: ['mild', 'moderate', 'severe'][Math.floor(Math.random() * 3)],
-            count: Math.floor(Math.random() * 8) + 1,
-            locations: this.generateRandomPoints(3)
-          });
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VACATION IDEAS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --fire-gradient: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            --success-gradient: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: rgba(255, 255, 255, 0.8);
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-xl: 0 35px 60px -12px rgba(0, 0, 0, 0.3);
         }
 
-        // Dark spots
-        if (Math.random() > 0.6) {
-          features.push({
-            type: 'dark_spots',
-            count: Math.floor(Math.random() * 5) + 1,
-            intensity: Math.random() * 0.7 + 0.3,
-            locations: this.generateRandomPoints(2)
-          });
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        // Fine lines
-        if (Math.random() > 0.5) {
-          features.push({
-            type: 'fine_lines',
-            depth: Math.random() * 0.6 + 0.2,
-            coverage: Math.random() * 30 + 5,
-            locations: this.generateRandomPoints(4)
-          });
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            transition: all 1s ease;
         }
 
-        return features;
-      }
+        body.mood-adventure { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%); }
+        body.mood-relax { background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%); }
+        body.mood-culture { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); }
+        body.mood-nature { background: linear-gradient(135deg, #00b894 0%, #00a085 100%); }
 
-      generateRandomPoints(count) {
-        const points = [];
-        for (let i = 0; i < count; i++) {
-          points.push({
-            x: Math.random() * 100,
-            y: Math.random() * 100
-          });
-        }
-        return points;
-      }
-
-      updateAnalysisDisplay(results) {
-        // Update skin score
-        const overallScore = this.calculateOverallScore(results);
-        document.getElementById('skinScore').textContent = overallScore;
-        
-        const scoreCircle = document.getElementById('scoreCircle');
-        scoreCircle.className = 'score-circle ' + this.getScoreClass(overallScore);
-
-        // Update individual metrics
-        this.updateMetricCard('acne', results);
-        this.updateMetricCard('hydration', results);
-        this.updateMetricCard('aging', results);
-        this.updateMetricCard('spots', results);
-
-        // Update analysis panel
-        this.updateAnalysisPanel(results);
-      }
-
-      calculateOverallScore(results) {
-        const baseScore = 85;
-        const textureScore = results.texture.smoothness;
-        const colorScore = results.color.evenness;
-        const featurePenalty = results.features.length * 3;
-        
-        const finalScore = Math.max(60, Math.min(100, 
-          (baseScore + textureScore + colorScore) / 3 - featurePenalty
-        ));
-        
-        return Math.round(finalScore);
-      }
-
-      getScoreClass(score) {
-        if (score >= 85) return 'score-excellent';
-        if (score >= 70) return 'score-good';
-        return 'score-fair';
-      }
-
-      updateMetricCard(metric, results) {
-        const progressBar = document.getElementById(metric + 'Progress');
-        const analysisDiv = document.getElementById(metric + 'Analysis');
-        
-        let score, message;
-        
-        switch(metric) {
-          case 'acne':
-            const acneFeature = results.features.find(f => f.type === 'acne');
-            score = acneFeature ? (100 - acneFeature.count * 10) : 95;
-            message = acneFeature ? 
-              `${acneFeature.severity} acne detected (${acneFeature.count} spots)` :
-              'Clear skin - no active breakouts detected';
-            break;
-            
-          case 'hydration':
-            score = 100 - results.texture.roughness;
-            message = score > 80 ? 'Well hydrated' : 
-                     score > 60 ? 'Needs more moisture' : 'Severely dehydrated';
-            break;
-            
-          case 'aging':
-            const linesFeature = results.features.find(f => f.type === 'fine_lines');
-            score = linesFeature ? (100 - linesFeature.coverage) : 90;
-            message = linesFeature ? 
-              `Fine lines detected (${Math.round(linesFeature.coverage)}% coverage)` :
-              'Minimal signs of aging';
-            break;
-            
-          case 'spots':
-            const spotsFeature = results.features.find(f => f.type === 'dark_spots');
-            score = spotsFeature ? (100 - spotsFeature.count * 15) : 92;
-            message = spotsFeature ? 
-              `${spotsFeature.count} dark spots detected` :
-              'Even skin tone';
-            break;
-        }
-        
-        progressBar.style.width = score + '%';
-        analysisDiv.textContent = message;
-      }
-
-      updateAnalysisPanel(results) {
-        const analysisResults = document.getElementById('analysisResults');
-        
-        const items = [
-          {
-            label: 'Skin Type',
-            value: this.determineSkinType(results)
-          },
-          {
-            label: 'Texture Quality',
-            value: `${Math.round(results.texture.smoothness)}% smooth`
-          },
-          {
-            label: 'Color Evenness',
-            value: `${Math.round(results.color.evenness)}% even`
-          },
-          {
-            label: 'Pore Size',
-            value: results.texture.poreSize < 15 ? 'Fine' : 
-                   results.texture.poreSize < 25 ? 'Normal' : 'Large'
-          },
-          {
-            label: 'Oil Production',
-            value: results.texture.oiliness < 30 ? 'Low' : 
-                   results.texture.oiliness < 50 ? 'Normal' : 'High'
-          },
-          {
-            label: 'Detected Issues',
-            value: results.features.length === 0 ? 'None' : 
-                   results.features.map(f => f.type.replace('_', ' ')).join(', ')
-          }
-        ];
-
-        analysisResults.innerHTML = items.map(item => `
-          <div class="analysis-item">
-            <div class="analysis-label">${item.label}</div>
-            <div class="analysis-value">${item.value}</div>
-          </div>
-        `).join('');
-      }
-
-      determineSkinType(results) {
-        const oiliness = results.texture.oiliness;
-        const hydration = 100 - results.texture.roughness;
-        
-        if (oiliness > 60) return 'Oily';
-        if (oiliness < 25 && hydration < 50) return 'Dry';
-        if (oiliness > 40 && hydration < 60) return 'Combination';
-        return 'Normal';
-      }
-
-      generateRecommendations(results) {
-        const recommendations = [];
-        
-        // Hydration recommendations
-        if (results.texture.roughness > 30) {
-          recommendations.push({
-            icon: 'fas fa-tint',
-            title: 'Hyaluronic Acid Serum',
-            description: 'Boost hydration by 40%',
-            priority: 'high'
-          });
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            opacity: 0.3;
+            z-index: -1;
+            transition: all 1s ease;
         }
 
-        // Acne recommendations
-        const acneFeature = results.features.find(f => f.type === 'acne');
-        if (acneFeature) {
-          recommendations.push({
-            icon: 'fas fa-leaf',
-            title: 'Salicylic Acid Cleanser',
-            description: 'Reduce breakouts by 60%',
-            priority: 'high'
-          });
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        // Anti-aging recommendations
-        const linesFeature = results.features.find(f => f.type === 'fine_lines');
-        if (linesFeature) {
-          recommendations.push({
-            icon: 'fas fa-magic',
-            title: 'Retinol Night Cream',
-            description: 'Reduce fine lines by 35%',
-            priority: 'medium'
-          });
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
         }
 
-        // Dark spots recommendations
-        const spotsFeature = results.features.find(f => f.type === 'dark_spots');
-        if (spotsFeature) {
-          recommendations.push({
-            icon: 'fas fa-sun',
-            title: 'Vitamin C Serum + SPF',
-            description: 'Fade dark spots by 50%',
-            priority: 'high'
-          });
+        .particle.fire { background: #ff6b6b; }
+        .particle.water { background: #74b9ff; }
+        .particle.earth { background: #00b894; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
         }
 
-        // General recommendations
-        recommendations.push({
-          icon: 'fas fa-shield-alt',
-          title: 'Broad Spectrum SPF 30+',
-          description: 'Prevent future damage',
-          priority: 'essential'
-        });
-
-        this.displayRecommendations(recommendations);
-      }
-
-      displayRecommendations(recommendations) {
-        const container = document.getElementById('recommendationsList');
-        
-        container.innerHTML = recommendations.map(rec => `
-          <div class="recommendation-item">
-            <div class="product-image">
-              <i class="${rec.icon}"></i>
-            </div>
-            <div>
-              <div style="font-weight: bold;">${rec.title}</div>
-              <div style="font-size: 0.9rem; opacity: 0.8;">${rec.description}</div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      updateDetectionPoints() {
-        const pointsContainer = document.getElementById('detectionPoints');
-        pointsContainer.innerHTML = '';
-        
-        // Generate random detection points
-        for (let i = 0; i < 8; i++) {
-          const point = document.createElement('div');
-          point.className = 'detection-point';
-          point.style.left = Math.random() * 90 + 5 + '%';
-          point.style.top = Math.random() * 90 + 5 + '%';
-          point.style.animationDelay = Math.random() * 2 + 's';
-          pointsContainer.appendChild(point);
+        .main-container {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2px;
         }
-      }
 
-      sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-      }
-    }
-
-    // Individual Analysis Classes
-    class AcneDetector {
-      constructor() {
-        this.sensitivity = 0.85;
-        this.confidence = 0.92;
-      }
-    }
-
-    class HydrationAnalyzer {
-      constructor() {
-        this.algorithm = 'MultiSpectral Analysis';
-        this.accuracy = 0.94;
-      }
-    }
-
-    class AgingAssessment {
-      constructor() {
-        this.model = 'Age Estimation CNN v3.0';
-        this.precision = 0.91;
-      }
-    }
-
-    class PigmentationScanner {
-      constructor() {
-        this.colorSpace = 'LAB';
-        this.sensitivity = 0.88;
-      }
-    }
-
-    // App Controller
-    class SkinAnalysisApp {
-      constructor() {
-        this.ai = new SkinAnalysisAI();
-        this.camera = null;
-        this.analysisInterval = null;
-        this.currentMode = 'comprehensive';
-        
-        this.initializeApp();
-      }
-
-      initializeApp() {
-        this.setupEventListeners();
-        this.updateStats();
-      }
-
-      setupEventListeners() {
-        // Enter app
-        document.getElementById('enterBtn').addEventListener('click', () => {
-          this.showLoading();
-          setTimeout(() => {
-            this.hideLoading();
-            this.enterApp();
-          }, 2000);
-        });
-
-        // Mode selection
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            this.setAnalysisMode(e.target.dataset.mode);
-          });
-        });
-
-        // Control buttons
-        document.getElementById('captureBtn').addEventListener('click', () => {
-          this.captureAnalysis();
-        });
-
-        document.getElementById('exportBtn').addEventListener('click', () => {
-          this.exportReport();
-        });
-
-        document.getElementById('historyBtn').addEventListener('click', () => {
-          this.showHistory();
-        });
-
-        document.getElementById('settingsBtn').addEventListener('click', () => {
-          this.showSettings();
-        });
-      }
-
-      showLoading() {
-        document.getElementById('loading').style.display = 'block';
-      }
-
-      hideLoading() {
-        document.getElementById('loading').style.display = 'none';
-      }
-
-      enterApp() {
-        document.getElementById('intro').style.opacity = '0';
-        document.getElementById('intro').style.pointerEvents = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        
-        setTimeout(() => {
-          this.startCamera();
-        }, 500);
-      }
-
-      async startCamera() {
-        try {
-          const stream = await navigator.mediaDevices.getUserMedia({
-            video: { 
-              facingMode: "user",
-              width: { ideal: 1280 },
-              height: { ideal: 720 }
-            },
-            audio: false
-          });
-          
-          const video = document.getElementById('camera');
-          video.srcObject = stream;
-          this.camera = video;
-          
-          video.onloadedmetadata = () => {
-            this.startAnalysis();
-          };
-          
-        } catch (error) {
-          console.error("Camera access denied:", error);
-          this.showCameraError();
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 12px 6px;
+            max-width: 320px;
+            width: 100%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
-      }
 
-      showCameraError() {
-        const analysisResults = document.getElementById('analysisResults');
-        analysisResults.innerHTML = `
-          <div class="analysis-item">
-            <div class="analysis-label">Camera Error</div>
-            <div class="analysis-value">Please allow camera access to use skin analysis</div>
-          </div>
-        `;
-      }
+        .card.shake {
+            animation: shake 0.5s ease-in-out;
+        }
 
-      startAnalysis() {
-        // Start continuous analysis
-        this.analysisInterval = setInterval(() => {
-          if (this.camera && this.camera.readyState === 4) {
-            this.captureFrame();
-          }
-        }, 1000);
-      }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
 
-      captureFrame() {
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        
-        canvas.width = this.camera.videoWidth;
-        canvas.height = this.camera.videoHeight;
-        
-        ctx.drawImage(this.camera, 0, 0);
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        
-        this.ai.analyzeFrame(imageData);
-      }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
 
-      setAnalysisMode(mode) {
-        this.currentMode = mode;
-        this.ai.analysisMode = mode;
-        
-        // Update active button
-        document.querySelectorAll('.mode-btn').forEach(btn => {
-          btn.classList.remove('active');
-        });
-        document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
-        
-        console.log(`🎯 Analysis mode set to: ${mode}`);
-      }
+        .card:hover::before {
+            left: 100%;
+        }
 
-      captureAnalysis() {
-        console.log('📸 Capturing detailed analysis...');
-        this.ai.captureDetailedAnalysis();
-        this.showNotification('Analysis captured successfully!');
-      }
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
 
-      exportReport() {
-        console.log('📄 Exporting analysis report...');
-        const reportData = this.ai.generateReport();
-        this.downloadReport(reportData);
-        this.showNotification('Report exported successfully!');
-      }
+        .logo {
+            font-size: 1.2rem;
+            margin-bottom: 2px;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-      downloadReport(data) {
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-          type: 'application/json'
-        });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `skin-analysis-${Date.now()}.json`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+        .title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
 
-      showHistory() {
-        console.log('📊 Showing analysis history...');
-        this.showNotification('Analysis history feature coming soon!');
-      }
+        .subtitle {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            line-height: 1.5;
+        }
 
-      showSettings() {
-        console.log('⚙️ Opening settings...');
-        this.showNotification('Settings panel coming soon!');
-      }
+        .mood-selector {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin: 8px 0;
+            flex-wrap: wrap;
+        }
 
-      showNotification(message) {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.innerHTML = `
-          <div style="
+        .mood-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            position: relative;
+        }
+
+        .mood-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .mood-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .inspire-btn {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            margin: 8px auto 0 auto;
+            display: block;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.2);
+        }
+
+        .inspire-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.6);
+        }
+
+        .inspire-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .inspire-btn i {
+            margin-right: 5px;
+        }
+
+        .trip-display {
+            display: none;
+            text-align: center;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .trip-header {
+            text-align: center;
+            margin-bottom: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .trip-header .app-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .trip-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            padding: 12px 8px;
+            margin: 7px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
+            to { box-shadow: 0 4px 20px rgba(79, 172, 254, 0.3); }
+        }
+
+        .trip-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-gradient);
+        }
+
+        .trip-badge {
+            display: inline-block;
+            background: var(--accent-gradient);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            animation: pulse 2s infinite;
+        }
+
+        .trip-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .trip-description {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 6px;
+        }
+
+        .weather-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 6px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.6rem;
+        }
+
+        .cost-estimate {
+            background: var(--success-gradient);
+            color: white;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 6px 0;
+            font-size: 0.6rem;
+            font-weight: 600;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .trip-details {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 3px;
+            margin-top: 4px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            color: var(--text-secondary);
+            font-size: 0.65rem;
+        }
+
+        .detail-item i {
+            color: #4facfe;
+            width: 12px;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 24px 0;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top: 2px solid #4facfe;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin-top: 7px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .btn:active::before {
+            width: 200%;
+            height: 200%;
+        }
+
+        .btn-primary {
+            background: var(--secondary-gradient);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 7px;
+            padding-top: 4px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-item:hover {
+            transform: scale(1.1);
+        }
+
+        .stat-number {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            animation: countUp 0.5s ease-out;
+        }
+
+        @keyframes countUp {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .stat-label {
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            margin-top: 1px;
+        }
+
+        .error-message {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.3);
+            color: #ffcdd2;
+            padding: 8px;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: none;
+            font-size: 0.7rem;
+        }
+
+        .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: linear-gradient(45deg, var(--primary), var(--accent));
+            background: var(--success-gradient);
             color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.7rem;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
             z-index: 1000;
-            animation: slideIn 0.3s ease;
-          ">
-            <i class="fas fa-check-circle"></i> ${message}
-          </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-          notification.remove();
-        }, 3000);
-      }
+        }
 
-      updateStats() {
-        // Simulate real-time stats updates
-        setInterval(() => {
-          const totalScans = document.getElementById('totalScans');
-          const currentCount = parseInt(totalScans.textContent);
-          totalScans.textContent = currentCount + Math.floor(Math.random() * 3);
-          
-          const accuracy = document.getElementById('accuracy');
-          const baseAccuracy = 98.5;
-          accuracy.textContent = (baseAccuracy + Math.random() * 0.8 - 0.4).toFixed(1) + '%';
-        }, 10000);
-      }
-    }
+        .notification.show {
+            transform: translateX(0);
+        }
 
-    // Enhanced AI Methods
-    SkinAnalysisAI.prototype.captureDetailedAnalysis = function() {
-      console.log('🔬 Performing detailed analysis...');
-      // Advanced capture logic here
-    };
+        .ai-suggestion {
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid rgba(138, 43, 226, 0.3);
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: 4px 0;
+            font-size: 0.6rem;
+            color: #dda0dd;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-    SkinAnalysisAI.prototype.generateReport = function() {
-      return {
-        timestamp: new Date().toISOString(),
-        scanId: `SA-${Date.now()}`,
-        overallScore: document.getElementById('skinScore').textContent,
-        analysisMode: this.analysisMode,
-        metrics: this.skinMetrics,
-        recommendations: this.getLastRecommendations(),
-        confidence: 0.95
-      };
-    };
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
-    SkinAnalysisAI.prototype.getLastRecommendations = function() {
-      const recommendations = document.querySelectorAll('.recommendation-item');
-      return Array.from(recommendations).map(item => ({
-        title: item.querySelector('div:nth-child(2) div:first-child').textContent,
-        description: item.querySelector('div:nth-child(2) div:last-child').textContent
-      }));
-    };
+        @media (max-width: 768px) {
+            .card {
+                padding: 8px 2px;
+                margin: 2px;
+                max-width: 99vw;
+            }
+            .title {
+                font-size: 0.8rem;
+            }
+            .logo {
+                font-size: 0.9rem;
+            }
+        }
 
-    // Initialize App
-    document.addEventListener('DOMContentLoaded', () => {
-      window.skinApp = new SkinAnalysisApp();
-      console.log('🚀 SkinAI Pro Initialized Successfully!');
-    });
+        .pulse {
+            animation: pulse 2s infinite;
+        }
 
-    // Add dynamic background effects
-    function createParticleEffect() {
-      const particles = document.querySelector('.bg-particles');
-      
-    setInterval(() => {
-        const particle = document.createElement('div');
-        particle.style.position = 'absolute';
-        particle.style.width = '2px';
-        particle.style.height = '2px';
-        particle.style.background = 'rgba(255, 51, 102, 0.3)';
-        particle.style.borderRadius = '50%';
-        particle.style.left = Math.random() * 100 + '%';
-        particle.style.top = Math.random() * 100 + '%';
-        particle.style.animation = 'float 4s ease-in-out infinite';
-        
-        particles.appendChild(particle);
-        
-        setTimeout(() => {
-          particle.remove();
-        }, 4000);
-      }, 500);
-    }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
 
-    // Add floating animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes float {
-        0%, 100% { transform: translateY(0px) scale(1); opacity: 0; }
-        50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
-      }
-    `;
-    document.head.appendChild(style);
+        .shake-hint {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.5rem;
+            color: var(--text-secondary);
+            animation: fadeInOut 3s infinite;
+        }
 
-    // Start particle effect after page load
-    setTimeout(createParticleEffect, 1000);
-  </script>
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-particles" id="particles"></div>
+    
+    <div class="main-container">
+        <div class="card" id="mainCard">
+            <div class="header">
+                <div class="logo">🌴</div>
+                <h1 class="title">VACATION IDEAS</h1>
+            </div>
+
+            <div class="mood-selector">
+                <button class="mood-btn" data-mood="adventure">🏔️ Adventure</button>
+                <button class="mood-btn" data-mood="relax">🏖️ Relax</button>
+                <button class="mood-btn" data-mood="culture">🏛️ Culture</button>
+                <button class="mood-btn" data-mood="nature">🌿 Nature</button>
+            </div>
+
+            <button class="inspire-btn pulse" id="inspireBtn">
+                <i class="fas fa-magic"></i>
+                Inspire My Journey
+            </button>
+
+            <div class="shake-hint">💡 Shake your device for random trip!</div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Crafting your perfect adventure...</p>
+            </div>
+
+            <div class="trip-display" id="tripDisplay">
+                <div class="trip-card" id="tripCard">
+                    <h3 class="trip-title" id="tripTitle"></h3>
+                    <p class="trip-description" id="tripDescription"></p>
+                    <div class="weather-info" id="weatherInfo"></div>
+                    <div class="cost-estimate" id="costEstimate"></div>
+                    <div class="ai-suggestion" id="aiSuggestion"></div>
+                    <div class="trip-details" id="tripDetails"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-primary" id="newTripBtn">
+                        <i class="fas fa-random"></i>
+                        New Adventure
+                    </button>
+                    <button class="btn btn-secondary" id="saveTripBtn">
+                        <i class="fas fa-heart"></i>
+                        Save Trip
+                    </button>
+                    <button class="btn btn-secondary" id="shareTripBtn">
+                        <i class="fas fa-share"></i>
+                        Share
+                    </button>
+                </div>
+    </div>
+
+            <div class="error-message" id="errorMessage"></div>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="tripsGenerated">0</div>
+                    <div class="stat-label">Trips Generated</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="savedTrips">0</div>
+                    <div class="stat-label">Saved Trips</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="countriesVisited">0</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+        </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script>
+        class MindBlowingVacationApp {
+            constructor() {
+                this.tripsGenerated = 0;
+                this.savedTrips = 0;
+                this.countriesVisited = new Set();
+                this.currentTrip = null;
+                this.currentMood = null;
+                this.sounds = {
+                    generate: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmFiHEU8lt7HdSsFJHDA7eGWRAoTXLPn4qBMGhhv3PLGfuiBaL8J'),
+                    save: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmIhA3Zr6Kg=='),
+                    click: new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmDWZGYh2PA=')
+                };
+                
+                this.initializeElements();
+                this.createDynamicParticles();
+                this.loadStats();
+                this.bindEvents();
+                this.setupShakeDetection();
+                this.startAmbientEffects();
+            }
+
+            initializeElements() {
+                this.inspireBtn = document.getElementById('inspireBtn');
+                this.loading = document.getElementById('loading');
+                this.tripDisplay = document.getElementById('tripDisplay');
+                this.tripTitle = document.getElementById('tripTitle');
+                this.tripDescription = document.getElementById('tripDescription');
+                this.tripDetails = document.getElementById('tripDetails');
+                this.weatherInfo = document.getElementById('weatherInfo');
+                this.costEstimate = document.getElementById('costEstimate');
+                this.aiSuggestion = document.getElementById('aiSuggestion');
+                this.newTripBtn = document.getElementById('newTripBtn');
+                this.saveTripBtn = document.getElementById('saveTripBtn');
+                this.shareTripBtn = document.getElementById('shareTripBtn');
+                this.errorMessage = document.getElementById('errorMessage');
+                this.mainCard = document.getElementById('mainCard');
+                
+                // Stats elements
+                this.tripsGeneratedEl = document.getElementById('tripsGenerated');
+                this.savedTripsEl = document.getElementById('savedTrips');
+                this.countriesVisitedEl = document.getElementById('countriesVisited');
+            }
+
+            createDynamicParticles() {
+                const particlesContainer = document.getElementById('particles');
+                for (let i = 0; i < 60; i++) {
+                    const particle = document.createElement('div');
+                    const types = ['', 'fire', 'water', 'earth'];
+                    const type = types[Math.floor(Math.random() * types.length)];
+                    particle.className = `particle ${type}`;
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.animationDelay = Math.random() * 6 + 's';
+                    particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            bindEvents() {
+                this.inspireBtn.addEventListener('click', () => {
+                    this.playSound('click');
+                    this.generateTrip();
+                });
+                this.newTripBtn.addEventListener('click', () => {
+                    this.playSound('click');
+                    this.generateTrip();
+                });
+                this.saveTripBtn.addEventListener('click', () => {
+                    this.playSound('save');
+                    this.saveTrip();
+                });
+                this.shareTripBtn.addEventListener('click', () => {
+                    this.playSound('click');
+                    this.shareTrip();
+                });
+
+                // Mood selector - support both click and touch events
+                document.querySelectorAll('.mood-btn').forEach(btn => {
+                    const activateMood = (e) => {
+                        e.preventDefault();
+                        this.playSound('click');
+                        this.setMood(btn.dataset.mood);
+                        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                    };
+                    btn.addEventListener('click', activateMood);
+                    btn.addEventListener('touchstart', activateMood, {passive: false});
+                });
+            }
+
+            setupShakeDetection() {
+                if (window.DeviceMotionEvent) {
+                    window.addEventListener('devicemotion', (e) => {
+                        const acceleration = e.accelerationIncludingGravity;
+                        const threshold = 15;
+                        
+                        if (Math.abs(acceleration.x) > threshold || 
+                            Math.abs(acceleration.y) > threshold || 
+                            Math.abs(acceleration.z) > threshold) {
+                            this.triggerShakeGeneration();
+                        }
+                    });
+                }
+            }
+
+            triggerShakeGeneration() {
+                this.mainCard.classList.add('shake');
+                this.showNotification('🎲 Shake detected! Generating random trip...');
+                setTimeout(() => {
+                    this.mainCard.classList.remove('shake');
+                    this.generateTrip();
+                }, 500);
+            }
+
+            setMood(mood) {
+                this.currentMood = mood;
+                document.body.className = `mood-${mood}`;
+                
+                // Update particles based on mood
+                const particles = document.querySelectorAll('.particle');
+                particles.forEach(p => {
+                    p.className = 'particle';
+                    if (mood === 'adventure') p.classList.add('fire');
+                    else if (mood === 'relax') p.classList.add('water');
+                    else if (mood === 'nature') p.classList.add('earth');
+                });
+            }
+
+            startAmbientEffects() {
+                setInterval(() => {
+                    if (this.currentTrip) {
+                        this.updateWeatherInfo();
+                    }
+                }, 30000);
+            }
+
+            playSound(type) {
+                if (this.sounds[type]) {
+                    this.sounds[type].currentTime = 0;
+                    this.sounds[type].play().catch(() => {});
+                }
+            }
+
+            showNotification(message) {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+
+            async generateTrip() {
+                // Show header elements when generating new trip
+                document.querySelector('.header').style.display = 'block';
+                this.inspireBtn.style.display = 'block';
+                
+                // Clear previous trip header and badge
+                const existingHeader = document.querySelector('.trip-header');
+                const existingBadge = document.querySelector('.trip-badge');
+                if (existingHeader) existingHeader.remove();
+                if (existingBadge) existingBadge.remove();
+                
+                this.showLoading();
+                this.hideError();
+                this.playSound('generate');
+                
+                setTimeout(async () => {
+                    try {
+                        // Try to get real travel data from free APIs
+                        const trip = await this.getTripFromAPI();
+                        this.displayTrip(trip);
+                        this.updateStats();
+                    } catch (error) {
+                        console.error('API error:', error);
+                        // Fallback to local data with enhanced variety
+                        const trip = this.generateLocalTrip();
+                        this.displayTrip(trip);
+                        this.updateStats();
+                    }
+                }, 100);
+            }
+
+            async getTripFromAPI() {
+                try {
+                    // Get random country data
+                    const countriesResponse = await fetch('https://restcountries.com/v3.1/all');
+                    const countries = await countriesResponse.json();
+                    const randomCountry = countries[Math.floor(Math.random() * countries.length)];
+
+                    // Generate trip based on country data
+                    const trip = this.createTripFromCountry(randomCountry);
+                    return trip;
+            } catch (error) {
+                    throw new Error('API unavailable');
+                }
+            }
+
+            createTripFromCountry(country) {
+                const activities = this.getActivitiesByMood();
+                const accommodations = [
+                    'luxury resort', 'boutique hotel', 'eco-lodge', 'historic inn',
+                    'beachfront villa', 'mountain cabin', 'city apartment',
+                    'treehouse retreat', 'desert camp', 'island bungalow'
+                ];
+
+                const durations = ['3 days', '5 days', '1 week', '10 days', '2 weeks'];
+                const budgets = ['Budget-friendly', 'Mid-range', 'Luxury', 'Premium'];
+
+                const activity = activities[Math.floor(Math.random() * activities.length)];
+                const accommodation = accommodations[Math.floor(Math.random() * accommodations.length)];
+                const duration = durations[Math.floor(Math.random() * durations.length)];
+                const budget = budgets[Math.floor(Math.random() * budgets.length)];
+
+                return {
+                    title: `${activity.charAt(0).toUpperCase() + activity.slice(1)} in ${country.name.common}`,
+                    description: `Experience the perfect blend of ${activity} and ${accommodation} in the beautiful ${country.name.common}. Discover ${country.capital?.[0] || 'its capital'} and immerse yourself in the local culture, cuisine, and breathtaking landscapes.`,
+                    country: country.name.common,
+                    capital: country.capital?.[0] || 'Various cities',
+                    region: country.region,
+                    duration: duration,
+                    budget: budget,
+                    activity: activity,
+                    accommodation: accommodation,
+                    weather: this.generateWeather(),
+                    cost: this.estimateCost(budget, duration),
+                    aiTip: this.generateAITip(activity, country.name.common)
+                };
+            }
+
+            getActivitiesByMood() {
+                const moodActivities = {
+                    adventure: ['mountain climbing', 'white water rafting', 'skydiving', 'rock climbing', 'zip lining'],
+                    relax: ['spa retreat', 'beach lounging', 'meditation', 'yoga retreat', 'thermal springs'],
+                    culture: ['museum tours', 'historical exploration', 'local festivals', 'art galleries', 'cultural immersion'],
+                    nature: ['wildlife safari', 'national park hiking', 'bird watching', 'nature photography', 'eco tours']
+                };
+
+                return moodActivities[this.currentMood] || [
+                    'cultural exploration', 'adventure sports', 'culinary journey', 
+                    'historical discovery', 'nature retreat', 'urban exploration',
+                    'beach relaxation', 'mountain hiking', 'wildlife safari',
+                    'art and architecture', 'local markets', 'spiritual retreat'
+                ];
+            }
+
+            generateLocalTrip() {
+                const destinations = [
+                    'Bali, Indonesia', 'Santorini, Greece', 'Kyoto, Japan', 'Marrakech, Morocco',
+                    'Reykjavik, Iceland', 'Cusco, Peru', 'Hanoi, Vietnam', 'Cape Town, South Africa',
+                    'Queenstown, New Zealand', 'Banff, Canada', 'Patagonia, Chile', 'Zanzibar, Tanzania',
+                    'Bhutan', 'Maldives', 'Swiss Alps', 'Amalfi Coast, Italy', 'Machu Picchu, Peru',
+                    'Petra, Jordan', 'Angkor Wat, Cambodia', 'Easter Island, Chile'
+                ];
+
+                const activities = this.getActivitiesByMood();
+                const uniqueCombinations = [];
+                for (let dest of destinations) {
+                    for (let activity of activities) {
+                        uniqueCombinations.push({ destination: dest, activity: activity });
+                    }
+                }
+
+                const randomIndex = Math.floor(Math.random() * uniqueCombinations.length);
+                const selected = uniqueCombinations[randomIndex];
+
+                return {
+                    title: `${selected.activity} in ${selected.destination}`,
+                    description: `Embark on an unforgettable journey to ${selected.destination} for ${selected.activity.toLowerCase()}. Experience the perfect blend of adventure, culture, and natural beauty in one of the world's most captivating destinations.`,
+                    country: selected.destination.split(', ')[1] || selected.destination,
+                    capital: selected.destination.split(', ')[0],
+                    region: this.getRegion(selected.destination),
+                    duration: this.getRandomDuration(),
+                    budget: this.getRandomBudget(),
+                    activity: selected.activity,
+                    accommodation: this.getRandomAccommodation(),
+                    weather: this.generateWeather(),
+                    cost: this.estimateCost(this.getRandomBudget(), this.getRandomDuration()),
+                    aiTip: this.generateAITip(selected.activity, selected.destination)
+                };
+            }
+
+            generateWeather() {
+                const conditions = ['☀️ Sunny', '⛅ Partly Cloudy', '🌧️ Light Rain', '❄️ Snow', '🌪️ Windy'];
+                const temp = Math.floor(Math.random() * 40) + 10; // 10-50°C
+                const condition = conditions[Math.floor(Math.random() * conditions.length)];
+                return `${condition} ${temp}°C`;
+            }
+
+            estimateCost(budget, duration) {
+                const baseCosts = {
+                    'Budget-friendly': 25,
+                    'Mid-range': 65,
+                    'Luxury': 150,
+                    'Premium': 280
+                };
+                const durationMultiplier = {
+                    '3 days': 3,
+                    '5 days': 5,
+                    '1 week': 7,
+                    '10 days': 10,
+                    '2 weeks': 14
+                };
+                
+                const base = baseCosts[budget] || 50;
+                const days = durationMultiplier[duration] || 7;
+                const total = base * days;
+                
+                return `$${total.toLocaleString()} estimated total`;
+            }
+
+            generateAITip(activity, destination) {
+                const tips = [
+                    `💡 Best time for ${activity} in ${destination} is during local dry season`,
+                    `🎒 Pack light, breathable clothing for optimal comfort`,
+                    `📱 Download offline maps and translation apps before departure`,
+                    `💰 Book accommodations 2-3 months in advance for better deals`,
+                    `🍽️ Try local street food for authentic cultural experiences`,
+                    `📸 Golden hour photography creates stunning travel memories`,
+                    `🚗 Consider local transportation for immersive experiences`,
+                    `🌍 Learn basic local phrases to connect with locals`,
+                ];
+                return tips[Math.floor(Math.random() * tips.length)];
+            }
+
+            updateWeatherInfo() {
+                if (this.currentTrip) {
+                    this.weatherInfo.innerHTML = `<i class="fas fa-thermometer-half"></i> ${this.generateWeather()}`;
+                }
+            }
+
+            getRegion(destination) {
+                const regions = {
+                    'Asia': ['Bali', 'Kyoto', 'Hanoi', 'Bhutan', 'Maldives', 'Petra', 'Angkor Wat'],
+                    'Europe': ['Santorini', 'Reykjavik', 'Swiss Alps', 'Amalfi Coast'],
+                    'Africa': ['Marrakech', 'Cape Town', 'Zanzibar'],
+                    'Americas': ['Cusco', 'Banff', 'Patagonia', 'Machu Picchu', 'Easter Island'],
+                    'Oceania': ['Queenstown']
+                };
+
+                for (let [region, cities] of Object.entries(regions)) {
+                    if (cities.some(city => destination.includes(city))) {
+                        return region;
+                    }
+                }
+                return 'Various';
+            }
+
+            getRandomDuration() {
+                const durations = ['3 days', '5 days', '1 week', '10 days', '2 weeks'];
+                return durations[Math.floor(Math.random() * durations.length)];
+            }
+
+            getRandomBudget() {
+                const budgets = ['Budget-friendly', 'Mid-range', 'Luxury', 'Premium'];
+                return budgets[Math.floor(Math.random() * budgets.length)];
+            }
+
+            getRandomAccommodation() {
+                const accommodations = [
+                    'luxury resort', 'boutique hotel', 'eco-lodge', 'historic inn',
+                    'beachfront villa', 'mountain cabin', 'city apartment'
+                ];
+                return accommodations[Math.floor(Math.random() * accommodations.length)];
+            }
+
+            displayTrip(trip) {
+                this.currentTrip = trip;
+                
+                this.tripTitle.textContent = trip.title;
+                this.tripDescription.textContent = trip.description;
+                
+                this.weatherInfo.innerHTML = `<i class="fas fa-thermometer-half"></i> ${trip.weather}`;
+                this.costEstimate.textContent = trip.cost;
+                this.aiSuggestion.textContent = trip.aiTip;
+                
+                this.tripDetails.innerHTML = `
+                    <div class="detail-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${trip.capital}, ${trip.country}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-clock"></i>
+                        <span>${trip.duration}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-dollar-sign"></i>
+                        <span>${trip.budget}</span>
+                    </div>
+                    <div class="detail-item">
+                        <i class="fas fa-bed"></i>
+                        <span>${trip.accommodation}</span>
+                    </div>
+                `;
+
+                // Add trip header and badge
+                const tripHeader = `
+                    <div class="trip-header">
+                        <div class="app-title">
+                            <span>🌴</span>
+                            <span>VACATION IDEAS</span>
+                        </div>
+                    </div>
+                `;
+                
+                const tripBadge = `<div class="trip-badge">Your Adventure</div>`;
+                
+                document.getElementById('tripCard').insertAdjacentHTML('afterbegin', tripBadge);
+                this.tripDisplay.insertAdjacentHTML('afterbegin', tripHeader);
+
+                this.hideLoading();
+                
+                // Hide header elements for clean professional look
+                document.querySelector('.header').style.display = 'none';
+                this.inspireBtn.style.display = 'none';
+                
+                this.tripDisplay.style.display = 'block';
+                this.tripDisplay.classList.add('fade-in');
+                
+                // Add country to visited set
+                this.countriesVisited.add(trip.country);
+                
+                this.showNotification('✨ Amazing trip generated!');
+            }
+
+            showLoading() {
+                this.loading.style.display = 'block';
+                this.tripDisplay.style.display = 'none';
+                this.inspireBtn.style.display = 'none';
+            }
+
+            hideLoading() {
+                this.loading.style.display = 'none';
+                this.inspireBtn.style.display = 'block';
+            }
+
+            hideError() {
+                this.errorMessage.style.display = 'none';
+            }
+
+            showError(message) {
+                this.errorMessage.textContent = message;
+                this.errorMessage.style.display = 'block';
+                this.hideLoading();
+            }
+
+            saveTrip() {
+                if (!this.currentTrip) return;
+                
+                const savedTrips = JSON.parse(localStorage.getItem('savedTrips') || '[]');
+                savedTrips.push({
+                    ...this.currentTrip,
+                    savedAt: new Date().toISOString()
+                });
+                
+                localStorage.setItem('savedTrips', JSON.stringify(savedTrips));
+                this.savedTrips = savedTrips.length;
+                this.updateStats();
+                
+                // Show success feedback
+                this.saveTripBtn.innerHTML = '<i class="fas fa-check"></i> Saved!';
+                this.showNotification('💾 Trip saved successfully!');
+                setTimeout(() => {
+                    this.saveTripBtn.innerHTML = '<i class="fas fa-heart"></i> Save Trip';
+                }, 2000);
+            }
+
+            shareTrip() {
+                if (!this.currentTrip) return;
+                
+                const text = `🌴 ${this.currentTrip.title}\n\n${this.currentTrip.description}\n\nGenerated by VACATION IDEAS ✨`;
+                
+                if (navigator.share) {
+                    navigator.share({
+                        title: 'My Next Adventure',
+                        text: text,
+                        url: window.location.href
+                    });
+                } else {
+                    // Fallback to clipboard
+                    navigator.clipboard.writeText(text).then(() => {
+                        this.shareTripBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                        this.showNotification('📋 Trip copied to clipboard!');
+                        setTimeout(() => {
+                            this.shareTripBtn.innerHTML = '<i class="fas fa-share"></i> Share';
+                        }, 2000);
+                    });
+                }
+            }
+
+            updateStats() {
+                this.tripsGenerated++;
+                this.tripsGeneratedEl.textContent = this.tripsGenerated;
+                this.savedTripsEl.textContent = this.savedTrips;
+                this.countriesVisitedEl.textContent = this.countriesVisited.size;
+                
+                localStorage.setItem('wanderlustStats', JSON.stringify({
+                    tripsGenerated: this.tripsGenerated,
+                    savedTrips: this.savedTrips,
+                    countriesVisited: Array.from(this.countriesVisited)
+                }));
+            }
+
+            loadStats() {
+                const stats = JSON.parse(localStorage.getItem('wanderlustStats') || '{}');
+                this.tripsGenerated = stats.tripsGenerated || 0;
+                this.savedTrips = stats.savedTrips || 0;
+                this.countriesVisited = new Set(stats.countriesVisited || []);
+                
+                this.tripsGeneratedEl.textContent = this.tripsGenerated;
+                this.savedTripsEl.textContent = this.savedTrips;
+                this.countriesVisitedEl.textContent = this.countriesVisited.size;
+            }
+        }
+
+        // Initialize the mind-blowing app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new MindBlowingVacationApp();
+        });
+    </script>
 </body>
 </html>
