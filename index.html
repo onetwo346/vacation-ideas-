@@ -705,17 +705,101 @@
                     this.shareTrip();
                 });
 
-                // Mood selector - support both click and touch events
+                // Enhanced mood selector with robust touch handling
                 document.querySelectorAll('.mood-btn').forEach(btn => {
-                    const activateMood = (e) => {
-                        e.preventDefault();
-                        this.playSound('click');
-                        this.setMood(btn.dataset.mood);
-                        document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
+                    let touchTimeout;
+                    let isTouching = false;
+                    let lastTap = 0;
+
+                    const showFeedback = (message) => {
+                        this.showNotification(`🎨 ${message}`);
                     };
-                    btn.addEventListener('click', activateMood);
-                    btn.addEventListener('touchstart', activateMood, {passive: false});
+
+                    const activateMood = (e, eventType) => {
+                        // Prevent any default behavior
+                        if (e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                        }
+
+                        // Prevent double triggers
+                        const currentTime = new Date().getTime();
+                        const tapLength = currentTime - lastTap;
+                        lastTap = currentTime;
+                        if (tapLength < 500 && tapLength > 0) {
+                            return;
+                        }
+
+                        // Clear any pending timeouts
+                        if (touchTimeout) {
+                            clearTimeout(touchTimeout);
+                        }
+
+                        touchTimeout = setTimeout(() => {
+                            try {
+                                const mood = btn.dataset.mood;
+                                this.playSound('click');
+                                this.setMood(mood);
+                                document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('active'));
+                                btn.classList.add('active');
+                                showFeedback(`${mood.charAt(0).toUpperCase() + mood.slice(1)} mood selected!`);
+                            } catch (error) {
+                                console.error('Error activating mood:', error);
+                                showFeedback('Please try selecting the mood again');
+                            }
+                            isTouching = false;
+                        }, 10);
+                    };
+
+                    // Touch event handlers with error handling
+                    const touchStartHandler = (e) => {
+                        try {
+                            isTouching = true;
+                            activateMood(e, 'touch');
+                        } catch (error) {
+                            console.error('Touch handler error:', error);
+                            showFeedback('Touch detection issue - please try again');
+                        }
+                    };
+
+                    const touchEndHandler = () => {
+                        try {
+                            setTimeout(() => {
+                                isTouching = false;
+                            }, 100);
+                        } catch (error) {
+                            console.error('Touch end error:', error);
+                        }
+                    };
+
+                    const touchCancelHandler = () => {
+                        try {
+                            isTouching = false;
+                            if (touchTimeout) {
+                                clearTimeout(touchTimeout);
+                            }
+                        } catch (error) {
+                            console.error('Touch cancel error:', error);
+                        }
+                    };
+
+                    // Click handler for non-touch devices
+                    const clickHandler = (e) => {
+                        if (!isTouching) { // Only handle click if not touching
+                            activateMood(e, 'click');
+                        }
+                    };
+
+                    // Add all event listeners with error handling
+                    btn.addEventListener('touchstart', touchStartHandler, { passive: false });
+                    btn.addEventListener('touchend', touchEndHandler);
+                    btn.addEventListener('touchcancel', touchCancelHandler);
+                    btn.addEventListener('click', clickHandler);
+
+                    // Add visual feedback for touch
+                    btn.addEventListener('touchstart', () => btn.style.transform = 'scale(0.95)');
+                    btn.addEventListener('touchend', () => btn.style.transform = '');
+                    btn.addEventListener('touchcancel', () => btn.style.transform = '');
                 });
             }
 
